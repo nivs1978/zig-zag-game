@@ -20,7 +20,7 @@ class Rectangle {
    }
 
    draw(ctx) {
-      ctx.fillStyle = "blue";
+      ctx.fillStyle = "darkgrey";
       ctx.fillRect(this.x, this.y, this.width, this.height);
    }
 }

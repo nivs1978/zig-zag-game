@@ -1,9 +1,10 @@
 class Track {
-   constructor(left, top, num, shortSide, longSide) {
+   constructor(left, top, num, shortSide, minLongSide, maxLongSide) {
       this.left = left;
       this.top = top;
       this.shortSide = shortSide;
-      this.longSide = longSide;
+      this.minLongSide = minLongSide;
+      this.length = maxLongSide - minLongSide;
 
       this.rectangles = [];
       this.index = 0;
@@ -13,12 +14,14 @@ class Track {
    }
 
    enqueueRectangle() {
+      let longSide = Math.floor(Math.random() * this.length) + this.minLongSide;
+      console.log(longSide);
       if (this.index % 2 == 0) {
-         const [width, height] = [this.longSide, this.shortSide];
+         const [width, height] = [longSide, this.shortSide];
          this.rectangles.push(new Rectangle(this.left, this.top, width, height));
          this.left += width - this.shortSide;
       } else {
-         const [width, height] = [this.shortSide, this.longSide];
+         const [width, height] = [this.shortSide, longSide];
          this.rectangles.push(new Rectangle(this.left, this.top, width, height));
          this.top += height - this.shortSide;
       }
