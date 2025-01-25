@@ -1,0 +1,2 @@
+Header add "Cache-Control" "no-cache"
+DirectoryIndex index.html index.htm index.php

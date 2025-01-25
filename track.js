@@ -1,10 +1,9 @@
 class Track {
-   constructor(left, top, num, shortSide, minLongSide, maxLongSide) {
-      this.left = left;
-      this.top = top;
-      this.shortSide = shortSide;
-      this.minLongSide = minLongSide;
-      this.length = maxLongSide - minLongSide;
+   constructor(num, minLength, maxLength) {
+      this.left = 0;
+      this.top = 0;
+      this.minLength = minLength;
+      this.length = maxLength - minLength;
 
       this.rectangles = [];
       this.index = 0;
@@ -14,16 +13,13 @@ class Track {
    }
 
    enqueueRectangle() {
-      let longSide = Math.floor(Math.random() * this.length) + this.minLongSide;
-      console.log(longSide);
+      let thisLength = Math.floor(Math.random() * this.length) + this.minLength;
       if (this.index % 2 == 0) {
-         const [width, height] = [longSide, this.shortSide];
-         this.rectangles.push(new Rectangle(this.left, this.top, width, height));
-         this.left += width - this.shortSide;
+         this.rectangles.push(new Rectangle(this.left, this.top, thisLength, Direction.RIGHT));
+         this.left += thisLength - 1;
       } else {
-         const [width, height] = [this.shortSide, longSide];
-         this.rectangles.push(new Rectangle(this.left, this.top, width, height));
-         this.top += height - this.shortSide;
+         this.rectangles.push(new Rectangle(this.left, this.top, thisLength, Direction.DOWN));
+         this.top += thisLength - 1;
       }
       this.index ++;
    }

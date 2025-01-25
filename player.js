@@ -3,8 +3,9 @@ class Player {
       this.x = x;
       this.y = y;
       this.radius = radius;
-      this.direction = "right";
+      this.direction = Direction.RIGHT;
       this.speed = speed;
+      this.distance = 0;
       this.image = new Image();
       this.image.src = "graphics/car.png";
       this.particles = [];
@@ -13,21 +14,22 @@ class Player {
 
    move() {
       this.particles.push(new SmokeParticle(this.x, this.y, this.direction));
-      if (this.direction == "right") {
+      if (this.direction == Direction.RIGHT) {
          this.x += this.speed;
       } else {
          this.y += this.speed;
       }
+      this.distance += this.speed / 10.0;
    }
 
    changeDirection() {
-      this.direction = this.direction == "right" ? "down" : "right";
+      this.direction = this.direction == Direction.RIGHT ? Direction.DOWN : Direction.RIGHT;
    }
 
    draw(ctx) {
       ctx.save()
       ctx.translate(this.x ,this.y)
-      if (this.direction == "right") {
+      if (this.direction == Direction.RIGHT) {
          ctx.rotate(Math.PI / 180 * 90)
       } else {
          ctx.rotate(Math.PI / 180 * 180)

@@ -2,7 +2,7 @@ class SmokeParticle {
     constructor(x, y, direction) {
         this.x = x;
         this.y = y;
-        if (direction == "right") {
+        if (direction == Direction.RIGHT) {
             this.x -= 20;
             this.y += Math.random() * 10;
         } else
