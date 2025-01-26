@@ -78,7 +78,7 @@
       <div id="highscoreDiv" style="position:absolute; top:5px; left:5px; font-size: 5vw;">Highscore: 0 m</div>
       <canvas id="myCanvas" style="background-color: green"></canvas>
       <div id="startGameButton" class="StartGame">Start&nbsp;Game</div>
-      <div id="versionDiv" style="position:absolute; bottom:5px; left:5px; font-size: 2vw;">v1.2</div>
+      <div id="versionDiv" style="position:absolute; bottom:5px; left:5px; font-size: 2vw;">v1.4</div>
       <script>
 
          function resizeCanvas() {
@@ -97,16 +97,41 @@
          const maxLongSide = 10;
          const N = 10;
          const speed = 30;
-         let track = null;
-         let player = null;
          let highscore = 0;
          let blinkInterval = null;
 
+         let track = new Track(N, minLongSide, maxLongSide);
+
+         let player = new Player(
+            shortSide * blockSize + 50,
+            shortSide * blockSize / 2,
+            shortSide * blockSize / 10,
+            speed
+         );
+
+         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+         let skidBuffer;
+
+         function loadSound(url) {
+            return fetch(url)
+               .then(response => response.arrayBuffer())
+               .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
+         }
+
+         function playSound(buffer) {
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.start(0);
+         }
+
+         loadSound('sounds/skid.mp3').then(buffer => {
+            skidBuffer = buffer;
+         });
+
          function changeDir(event) {
-            soundSkid.pause();
-            soundSkid.currentTime = 0
-            soundSkid.play();
-            player.changeDirection()
+            playSound(skidBuffer);
+            player.changeDirection();
          }
 
          function loadHighscore() {
@@ -139,6 +164,11 @@
 
          function screenTouch(event) {
             event.preventDefault();
+
+            if (event.target && event.target.hasPointerCapture && event.target.hasPointerCapture(event.pointerId)) {
+               event.target.releasePointerCapture(event.pointerId);
+            }   
+
             if (run) {
                changeDir();
             } else {
@@ -164,6 +194,7 @@
          }
 
          function stopGame() {
+            drawScreen();
             soundCrash.play();
             startGameButton.style.display = "block";
             run = false;
@@ -171,10 +202,24 @@
             stopBlinking();
          }
 
+         function drawScreen() {
+            ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+
+            ctx.save();
+            ctx.translate(myCanvas.width / 2, myCanvas.height / 2);
+            ctx.rotate(-3 * Math.PI / 4);
+
+            ctx.translate(-player.x, -player.y);
+
+            track.draw(ctx);
+            player.draw(ctx);
+
+            ctx.restore();
+         }
+
          function animate(time) {
             var elapsed = Math.max(1, time - lastTime);
             lastTime = time;
-//            console.log(elapsed);
             metersDiv.innerHTML = player.distance.toFixed(0) + " m";            
             if (player.distance > highscore) {
                highscore = player.distance;
@@ -188,18 +233,7 @@
                return;
             }
 
-            ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-
-            ctx.save();
-            ctx.translate(myCanvas.width / 2, myCanvas.height / 2);
-            ctx.rotate(-3 * Math.PI / 4);
-
-            ctx.translate(-player.x, -player.y);
-
-            track.draw(ctx);
-            player.draw(ctx);
-
-            ctx.restore();
+            drawScreen();
 
             if (run)
             {
@@ -211,13 +245,13 @@
          document.addEventListener("pointerdown", (event) => { screenTouch(event); }); 
          document.addEventListener("keydown", (event) => { screenTouch(event); });
          window.addEventListener('selectstart', (event) => { event.preventDefault(); return false; });
+         document.addEventListener('contextmenu', (event) => { event.preventDefault(); });
          resizeCanvas();
          loadHighscore();
 
+         drawScreen();
+
       </script>
-          <audio id="soundSkid" preload="auto">
-            <source src="sounds/skid.mp3" type="audio/mpeg">
-        </audio>
         <audio id="soundCrash" preload="auto">
             <source src="sounds/crash.mp3" type="audio/mpeg">
         </audio>

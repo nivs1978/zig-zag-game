@@ -1,3 +1,10 @@
+body {
+    -webkit-user-select: none; /* Disable text selection on iOS */
+    -webkit-touch-callout: none; /* Disable callout menu on iOS */
+    user-select: none; /* Disable text selection for other browsers */
+    touch-action: none; /* Disable default touch actions */
+}
+
 .StartGame {
     position: absolute;
     top: 0;
