@@ -11,7 +11,7 @@
       <meta name="apple-mobile-web-app-title" content="Grid Golf">
       <meta name="description" content="A small golf board game">
       <title>Zig Zag Rush</title>
-      <link rel="icon" type="image/png" href="/favicon.png">
+      <link rel="icon" type="image/ico" href="favicon.ico">
       <link rel="shortcut icon" type="image/png" href="images/icon-192.png">
       <link rel="shortcut icon" sizes="192x192" href="images/icon-192.png">
       <link rel="apple-touch-icon" href="images/icon-192.png">
@@ -78,6 +78,7 @@
       <div id="highscoreDiv" style="position:absolute; top:5px; left:5px; font-size: 5vw;">Highscore: 0 m</div>
       <canvas id="myCanvas" style="background-color: green"></canvas>
       <div id="startGameButton" class="StartGame">Start&nbsp;Game</div>
+      <div id="versionDiv" style="position:absolute; bottom:5px; left:5px; font-size: 2vw;">v1.2</div>
       <script>
 
          function resizeCanvas() {
@@ -95,24 +96,18 @@
          const minLongSide = 3;
          const maxLongSide = 10;
          const N = 10;
-         const speed = 4;
+         const speed = 30;
          let track = null;
          let player = null;
          let highscore = 0;
          let blinkInterval = null;
 
-         function changeDir() {
+         function changeDir(event) {
             soundSkid.pause();
             soundSkid.currentTime = 0
             soundSkid.play();
             player.changeDirection()
          }
-
-         function bindTouchEvents() {
-         }
-
-         document.addEventListener("pointerdown", startGame );
-         document.addEventListener("keydown", startGame );
 
          function loadHighscore() {
             if (localStorage.getItem("highscore") === null) {
@@ -142,17 +137,20 @@
             }
          }
 
+         function screenTouch(event) {
+            event.preventDefault();
+            if (run) {
+               changeDir();
+            } else {
+               startGame();
+            }
+         }
+
          function startGame(timestamp) {
-            document.removeEventListener("pointerdown", startGame );
-            document.removeEventListener("keydown", startGame );
-            document.addEventListener("pointerdown", changeDir );
-            document.addEventListener("keydown", changeDir );
-
-
             track = new Track(N, minLongSide, maxLongSide);
 
             player = new Player(
-               shortSide * blockSize / 2,
+               shortSide * blockSize + 50,
                shortSide * blockSize / 2,
                shortSide * blockSize / 10,
                speed
@@ -160,8 +158,8 @@
 
             startGameButton.style.display = "none";
             run = true;
-            lastTime = Date.now();
             stopBlinking();
+            lastTime = Date.now();
             animate(lastTime);
          }
 
@@ -171,26 +169,19 @@
             run = false;
             saveHighscore();
             stopBlinking();
-            document.removeEventListener("pointerdown", changeDir );
-            document.removeEventListener("keydown", changeDir );
-            setTimeout(() => {
-               document.addEventListener("pointerdown", startGame );
-               document.addEventListener("keydown", startGame );
-            }, 500); // Delay to avoid immediate restart
          }
 
          function animate(time) {
-            var elapsed = time - lastTime;
+            var elapsed = Math.max(1, time - lastTime);
             lastTime = time;
-
+//            console.log(elapsed);
             metersDiv.innerHTML = player.distance.toFixed(0) + " m";            
             if (player.distance > highscore) {
                highscore = player.distance;
                highscoreDiv.innerHTML = "Highscore: " + player.distance.toFixed(0) + " m";
                startBlinking();
             }
-            player.move();
-            player.speed += acceleration;
+            player.move(elapsed);
             track.adjustFor(player);
             if (!track.contains(player)) {
                stopGame();
@@ -217,7 +208,9 @@
          }
 
          window.addEventListener('resize', resizeCanvas);
-
+         document.addEventListener("pointerdown", (event) => { screenTouch(event); }); 
+         document.addEventListener("keydown", (event) => { screenTouch(event); });
+         window.addEventListener('selectstart', (event) => { event.preventDefault(); return false; });
          resizeCanvas();
          loadHighscore();
 

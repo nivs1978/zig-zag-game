@@ -12,14 +12,16 @@ class Player {
       this.particleTick = 0;
    }
 
-   move() {
+   move(elapsedTime) {
       this.particles.push(new SmokeParticle(this.x, this.y, this.direction));
+      let movement = this.speed * elapsedTime / 100;
+      this.speed += this.speed * acceleration * elapsedTime / 100;
       if (this.direction == Direction.RIGHT) {
-         this.x += this.speed;
+         this.x += movement;
       } else {
-         this.y += this.speed;
+         this.y += movement;
       }
-      this.distance += this.speed / 10.0;
+      this.distance += movement / 10;
    }
 
    changeDirection() {

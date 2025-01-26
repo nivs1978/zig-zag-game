@@ -14,6 +14,9 @@ class Track {
 
    enqueueRectangle() {
       let thisLength = Math.floor(Math.random() * this.length) + this.minLength;
+      if (this.rectangles.length == 0) {
+         thisLength = this.length;
+      }
       if (this.index % 2 == 0) {
          this.rectangles.push(new Rectangle(this.left, this.top, thisLength, Direction.RIGHT));
          this.left += thisLength - 1;
